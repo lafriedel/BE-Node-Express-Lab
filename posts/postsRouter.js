@@ -91,4 +91,41 @@ router.delete("/:id", (req, res) => {
     });
 });
 
+router.put("/:id", (req, res) => {
+    const id = req.params.id;
+
+    const { title, contents } = req.body;
+    const updatedPost = { title, contents };
+  
+    if (!title || !contents) {
+      return res
+        .status(400)
+        .json({
+          errorMessage: "Please provide title and contents for the post."
+        });
+    }
+
+    Posts.findById(id)
+        .then(post => {
+            if (post.length !== 0) {
+                return Posts.update(id, updatedPost)
+                    .then(post => {
+                        Posts
+                            .findById(id)
+                            .then(post => {
+                                res.status(200).json({ updatedPost });
+                            })
+                    })
+                    .catch(err => {
+                        res.status(500).json({ error: "The post information could not be modified." });
+                    });
+            } else {
+                res.status(404).json({ message: "The post with the specified ID does not exist." });
+            }
+        })
+        .catch(err => {
+            res.status(404).json({ message: "The post with the specified ID does not exist." });
+        })
+})
+
 module.exports = router;
