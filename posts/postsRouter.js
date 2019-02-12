@@ -30,6 +30,30 @@ router.get("/:id", (req, res) => {
         .catch(err => {
             res.status(500).json({ error: "The post information could not be retrieved." });
         });
+});
+
+router.post("/", (req, res) => {
+    const { title, contents } = req.body;
+    const post = { title, contents };
+
+    if (!title || !contents) {
+        return res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
+    }
+
+    Posts
+        .insert(post)
+        .then(newId => {
+            const { id } = newId;
+            
+            Posts
+                .findById(id)
+                .then(post => {
+                    res.status(201).send(post);
+                });
+        })
+        .catch(err => {
+            res.status(500).json({ error: "There was an error while saving the post to the database." });
+        });
 })
 
 module.exports = router;
